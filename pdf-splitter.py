@@ -9,49 +9,49 @@ def run(path_to_pdf, path_to_toc, path_to_output):
     format of the csv:
     --------
     Title,Page
-    __OFFSET_IN__,<number of pages before the first tune>
-    __OFFSET_OUT__,<number of pages after the last tune>
-    "<title of the tune>",<starting page of the tune>
-    "<title of the tune>",<starting page of the tune>
+    __OFFSET_IN__,<number of pages before the first section>
+    __OFFSET_OUT__,<number of pages after the last section>
+    "<title of the section>",<starting page of the section>
+    "<title of the section>",<starting page of the section>
     ...
     --------
     """
-    # number of pages before the first tune
+    # number of pages before the first section
     offset_in = 0
 
-    # number of pages after the last tune
+    # number of pages after the last section
     offset_out = 0
 
     # list of dictionaries with format:
-    # {'No': '<tune No>', 'Title': '<title of the tune>', 'Page': '<starting page of the tune>'}
-    tunes = list()
+    # {'Title': '<title of the section>', 'Page': '<starting page of the section>'}
+    sections = list()
 
     with open(path_to_toc, newline="") as toc:
         toc_reader = csv.DictReader(toc, delimiter=",", quotechar='"')
-        for tune in toc_reader:
-            if tune["Title"] == "__OFFSET_IN__":
-                offset_in = int(tune["Page"])
+        for section in toc_reader:
+            if section["Title"] == "__OFFSET_IN__":
+                offset_in = int(section["Page"])
                 continue
 
-            if tune["Title"] == "__OFFSET_OUT__":
-                offset_out = int(tune["Page"])
+            if section["Title"] == "__OFFSET_OUT__":
+                offset_out = int(section["Page"])
                 continue
 
-            tunes.append(tune)
+            sections.append(section)
 
     os.makedirs(path_to_output, exist_ok=True)
     pdf_reader = pypdf.PdfReader(path_to_pdf)
 
-    for i in range(len(tunes)):
+    for i in range(len(sections)):
         # the printed page number starts from 1, so we need "-1" to access the page from PdfReader.
-        page_start = int(tunes[i]["Page"]) + offset_in - 1
+        page_start = int(sections[i]["Page"]) + offset_in - 1
         page_end = (
-            int(tunes[i + 1]["Page"]) + offset_in - 1
-            if i < len(tunes) - 1
+            int(sections[i + 1]["Page"]) + offset_in - 1
+            if i < len(sections) - 1
             else len(pdf_reader.pages) - offset_out  # for the last page
         )
 
-        # in case 2 tunes are on the same page
+        # in case 2 sections are on the same page
         if page_end == page_start:
             page_end = page_start
 
@@ -60,8 +60,10 @@ def run(path_to_pdf, path_to_toc, path_to_output):
             writer.add_page(pdf_reader.pages[page])
 
         # format of the filenale: <No>-<title>.pdf
-        # if the tune contains '/', replace to '_'.
-        filename = "-".join([str(i + 1), tunes[i]["Title"], ".pdf"]).replace("/", "_")
+        # if the section contains '/', replace to '_'.
+        filename = "-".join([str(i + 1), sections[i]["Title"], ".pdf"]).replace(
+            "/", "_"
+        )
         writer.write(os.path.join(path_to_output, filename))
         print(f"wrote {filename}")
 
@@ -78,14 +80,14 @@ if __name__ == "__main__":
     format of the csv:
     --------
     Title,Page
-    __OFFSET_IN__,<number of pages before the first tune>
-    __OFFSET_OUT__,<number of pages after the last tune>
-    "<title of the tune>",<starting page of the tune>
-    "<title of the tune>",<starting page of the tune>
+    __OFFSET_IN__,<number of pages before the first section>
+    __OFFSET_OUT__,<number of pages after the last section>
+    "<title of the section>",<starting page of the section>
+    "<title of the section>",<starting page of the section>
     ...
     --------
               """)
-        exit(1)
+        sys.exit(1)
 
     path_to_pdf = sys.argv[1]
     path_to_toc = sys.argv[2]
