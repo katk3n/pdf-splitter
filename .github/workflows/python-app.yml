@@ -2,10 +2,8 @@ name: Python application
 
 on:
   push:
-    branches: ["main"]
-
-permissions:
-  contents: read
+    tags:
+      - "v*"
 
 jobs:
   build:
