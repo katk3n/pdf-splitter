@@ -70,6 +70,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.upload-url.outputs.url }}
-          asset_path: ./pdf-splitter.zip
-          asset_name: pdf-splitter.zip
+          asset_path: ./pdf-splitter
+          asset_name: pdf-splitter
           asset_content_type: application/zip
