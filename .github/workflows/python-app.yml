@@ -28,7 +28,7 @@ jobs:
         run: pyinstaller -F pdf-splitter.py
 
       - name: upload
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: pdf-splitter
           path: dist/pdf-splitter
