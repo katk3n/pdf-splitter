@@ -7,7 +7,18 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    strategy:
+      matrix:
+        target:
+          - aarch64-apple-darwin
+          - x86_64-apple-darwin
+        include:
+          - target: aarch64-apple-darwin
+            os: macos-latest
+          - target: x86_64-apple-darwin
+            os: macos-13
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
@@ -26,14 +37,15 @@ jobs:
         run: pyinstaller -F pdf-splitter.py
 
       - name: package
-        run: |
-          zip --junk-paths pdf-splitter.zip dist/pdf-splitter
+        run: >
+          zip --junk-paths
+          pdf-splitter-${{ matrix.target }}.zip dist/pdf-splitter
 
       - name: upload
         uses: actions/upload-artifact@v4
         with:
-          name: pdf-splitter
-          path: pdf-splitter.zip
+          name: pdf-splitter-${{ matrix.target }}
+          path: pdf-splitter-${{ matrix.target }}.zip
 
   create-release:
     needs: [build]
@@ -57,6 +69,11 @@ jobs:
           path: release_upload_url.txt
 
   upload-release:
+    strategy:
+      matrix:
+        target:
+          - aarch64-apple-darwin
+          - x86_64-apple-darwin
     needs: [create-release]
     runs-on: ubuntu-latest
     steps:
@@ -68,12 +85,12 @@ jobs:
           echo "url=$(cat release_upload_url.txt)" >> $GITHUB_OUTPUT
       - uses: actions/download-artifact@v4
         with:
-          name: pdf-splitter
+          name: pdf-splitter-${{ matrix.target }}
       - uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.upload-url.outputs.url }}
-          asset_path: ./pdf-splitter.zip
-          asset_name: pdf-splitter.zip
+          asset_path: ./pdf-splitter-${{ matrix.target }}.zip
+          asset_name: pdf-splitter-${{ matrix.target }}.zip
           asset_content_type: application/zip
