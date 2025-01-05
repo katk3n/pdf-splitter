@@ -51,11 +51,15 @@ def run(path_to_pdf, path_to_toc, path_to_output):
             else len(pdf_reader.pages) - offset_out  # for the last page
         )
 
+        # in case 2 tunes are on the same page
+        if page_end == page_start:
+            page_end = page_start
+
         writer = pypdf.PdfWriter()
         for page in range(page_start, page_end):
             writer.add_page(pdf_reader.pages[page])
 
-        # format of the filenale: <No>-<tune>.pdf
+        # format of the filenale: <No>-<title>.pdf
         # if the tune contains '/', replace to '_'.
         filename = "-".join([str(i + 1), tunes[i]["Title"], ".pdf"]).replace("/", "_")
         writer.write(os.path.join(path_to_output, filename))
@@ -65,6 +69,24 @@ def run(path_to_pdf, path_to_toc, path_to_output):
 
 
 if __name__ == "__main__":
+    if len(sys.argv) != 4:
+        print(f""" Usage: {sys.argv[0]} [path_to_pdf.pdf] [path_to_toc.csv] [path_to_output/]
+    path_to_pdf.pdf: path to the pdf to split
+    path_to_toc.csv: path to the table of contents of the pdf in csv format
+    path_to_output/: output directory for the splitted pdf files
+
+    format of the csv:
+    --------
+    Title,Page
+    __OFFSET_IN__,<number of pages before the first tune>
+    __OFFSET_OUT__,<number of pages after the last tune>
+    "<title of the tune>",<starting page of the tune>
+    "<title of the tune>",<starting page of the tune>
+    ...
+    --------
+              """)
+        exit(1)
+
     path_to_pdf = sys.argv[1]
     path_to_toc = sys.argv[2]
     path_to_output = sys.argv[3]
