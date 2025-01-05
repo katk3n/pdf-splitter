@@ -61,7 +61,7 @@ jobs:
           name: create-release
       - id: upload-url
         run: |
-          echo "name=url::$(cat release_upload_url.txt)" >> $GITHUB_OUTPUT
+          echo "url=$(cat release_upload_url.txt)" >> $GITHUB_OUTPUT
       - uses: actions/download-artifact@v4
         with:
           name: pdf-splitter
