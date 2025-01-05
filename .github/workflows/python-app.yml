@@ -25,11 +25,15 @@ jobs:
       - name: build
         run: pyinstaller -F pdf-splitter.py
 
+      - name: package
+        run: |
+          zip --junk-paths pdf-splitter.zip dist/pdf-splitter
+
       - name: upload
         uses: actions/upload-artifact@v4
         with:
           name: pdf-splitter
-          path: dist/pdf-splitter
+          path: pdf-splitter.zip
 
   create-release:
     needs: [build]
@@ -70,6 +74,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.upload-url.outputs.url }}
-          asset_path: ./pdf-splitter
-          asset_name: pdf-splitter
+          asset_path: ./pdf-splitter.zip
+          asset_name: pdf-splitter.zip
           asset_content_type: application/zip
