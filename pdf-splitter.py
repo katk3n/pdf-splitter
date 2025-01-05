@@ -8,11 +8,11 @@ def run(path_to_pdf, path_to_toc, path_to_output):
     """
     format of the csv:
     --------
-    No,Title,Page
-    0,__OFFSET_IN__,<number of pages before the first tune>
-    0,__OFFSET_OUT__,<number of pages after the last tune>
-    1,"<title of the tune>",<starting page of the tune>
-    2,"<title of the tune>",<starting page of the tune>
+    Title,Page
+    __OFFSET_IN__,<number of pages before the first tune>
+    __OFFSET_OUT__,<number of pages after the last tune>
+    "<title of the tune>",<starting page of the tune>
+    "<title of the tune>",<starting page of the tune>
     ...
     --------
     """
@@ -57,9 +57,7 @@ def run(path_to_pdf, path_to_toc, path_to_output):
 
         # format of the filenale: <No>-<tune>.pdf
         # if the tune contains '/', replace to '_'.
-        filename = "-".join([tunes[i]["No"], tunes[i]["Title"], ".pdf"]).replace(
-            "/", "_"
-        )
+        filename = "-".join([str(i + 1), tunes[i]["Title"], ".pdf"]).replace("/", "_")
         writer.write(os.path.join(path_to_output, filename))
         print(f"wrote {filename}")
 
